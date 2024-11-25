@@ -1,44 +1,49 @@
 package it.unibo.mvc;
 
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
+import org.yaml.snakeyaml.Yaml;
 
 /**
  */
 public final class DrawNumberApp implements DrawNumberViewObserver {
-    private static final int MIN = 0;
-    private static final int MAX = 100;
-    private static final int ATTEMPTS = 10;
+    private static final String CONFIG_FILE_NAME = "config.yml";
+    private static final String LOG_FILE_PATH = System.getProperty("user.home") + System.getProperty("file.separator")
+            + "oop-exercise-102-log.txt";
 
     private final DrawNumber model;
     private final List<DrawNumberView> views;
 
     /**
+     * @param configuration
      * @param views
-     *            the views to attach
+     *                      the views to attach
      */
-    public DrawNumberApp(final DrawNumberView... views) {
+    public DrawNumberApp(final Configuration configuration, final DrawNumberView... views) {
         /*
          * Side-effect proof
          */
         this.views = Arrays.asList(Arrays.copyOf(views, views.length));
-        for (final DrawNumberView view: views) {
+        for (final DrawNumberView view : views) {
             view.setObserver(this);
             view.start();
         }
-        this.model = new DrawNumberImpl(MIN, MAX, ATTEMPTS);
+        this.model = new DrawNumberImpl(configuration.getMin(), configuration.getMax(), configuration.getAttempts());
     }
 
     @Override
     public void newAttempt(final int n) {
         try {
             final DrawResult result = model.attempt(n);
-            for (final DrawNumberView view: views) {
+            for (final DrawNumberView view : views) {
                 view.result(result);
             }
         } catch (IllegalArgumentException e) {
-            for (final DrawNumberView view: views) {
+            for (final DrawNumberView view : views) {
                 view.numberIncorrect();
             }
         }
@@ -62,11 +67,35 @@ public final class DrawNumberApp implements DrawNumberViewObserver {
 
     /**
      * @param args
-     *            ignored
-     * @throws FileNotFoundException 
+     *             ignored
+     * @throws FileNotFoundException
      */
+    @SuppressWarnings({ "PMD.SystemPrintln", "PMD.AvoidCatchingGenericException" })
     public static void main(final String... args) throws FileNotFoundException {
-        new DrawNumberApp(new DrawNumberViewImpl());
+        final Configuration.Builder configurationBuilder = new Configuration.Builder();
+
+        try {
+            final Yaml yaml = new Yaml();
+            final InputStream inputStream = DrawNumberApp.class
+                    .getClassLoader()
+                    .getResourceAsStream(CONFIG_FILE_NAME);
+            final Map<String, Integer> configurationFromFile = yaml.load(inputStream);
+            // setup configuration from file
+            configurationBuilder.setMin(configurationFromFile.get("minimum"))
+                    .setMax(configurationFromFile.get("maximum"))
+                    .setAttempts(configurationFromFile.get("attempts"));
+        } catch (Exception exception) {
+            // Yaml.load doesn't document which kind of exception will be throws, so let's
+            // use a generic Exception
+            System.out.println(
+                    "WARNING: Something went wrong parsing YAML file, the default configuration will be used.");
+            System.out.println(exception.getMessage());
+        }
+
+        new DrawNumberApp(configurationBuilder.build(),
+                new DrawNumberViewImpl(),
+                new PrintStreamView(System.out),
+                new PrintStreamView(LOG_FILE_PATH));
     }
 
 }

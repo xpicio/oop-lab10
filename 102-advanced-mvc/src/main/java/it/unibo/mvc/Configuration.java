@@ -1,12 +1,11 @@
 package it.unibo.mvc;
 
-
 /**
  * Encapsulates the concept of configuration.
  */
 public final class Configuration {
 
-    private final int max; 
+    private final int max;
     private final int min;
     private final int attempts;
 
@@ -61,6 +60,7 @@ public final class Configuration {
      * the builder, we emulate the so-called "named arguments".
      * 
      */
+    @SuppressWarnings({ "PMD.LinguisticNaming", "PMD.RedundantFieldInitializer" })
     public static class Builder {
 
         private static final int MIN = 0;
@@ -111,4 +111,3 @@ public final class Configuration {
         }
     }
 }
-
