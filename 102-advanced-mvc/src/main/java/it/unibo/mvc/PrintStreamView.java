@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * This class implements a view that can write on any PrintStream.
@@ -21,6 +22,7 @@ public final class PrintStreamView implements DrawNumberView {
      *
      * @param stream the {@link PrintStream} where to write
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public PrintStreamView(final PrintStream stream) {
         out = stream;
     }

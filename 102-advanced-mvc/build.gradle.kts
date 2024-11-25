@@ -10,6 +10,7 @@ repositories {
 
 dependencies {
     implementation("org.yaml:snakeyaml:2.3")
+    compileOnly("com.github.spotbugs:spotbugs-annotations:4.8.6")    
 }
 
 application {

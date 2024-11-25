@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  */
@@ -55,6 +56,7 @@ public final class DrawNumberApp implements DrawNumberViewObserver {
     }
 
     @Override
+    @SuppressFBWarnings("DM_EXIT")
     public void quit() {
         /*
          * A bit harsh. A good application should configure the graphics to exit by
